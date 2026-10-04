@@ -1,0 +1,35 @@
+repos:
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        language: system
+        entry: isort --settings-path backend/pyproject.toml
+        types: [python]
+
+      - id: black
+        name: Black
+        language: system
+        entry: black --config backend/pyproject.toml
+        types: [python]
+
+      - id: flake8
+        name: flake8
+        language: system
+        entry: flake8 --config backend/.flake8
+        types: [python]
+
+      - id: prettier
+        name: Prettier
+        language: system
+        entry: npm --prefix frontend run format
+        files: ^frontend/.*\.(html|css|js|mjs|json)$
+        exclude: ^frontend/package-lock\.json$
+        pass_filenames: false
+
+      - id: eslint
+        name: ESLint
+        language: system
+        entry: npm --prefix frontend run lint
+        files: ^frontend/.*\.(js|mjs|json)$
+        pass_filenames: false

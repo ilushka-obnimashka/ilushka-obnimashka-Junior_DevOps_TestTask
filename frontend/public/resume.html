@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Илья Трушкин — Junior DevOps. Давайте совпадём по работе." />
+    <title>Резюме · jobmatch</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <div id="jobmatch" data-theme="dark">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="jobmatch — главная"
+          ><span class="brand-icon" aria-hidden="true">♥</span>jobmatch<span class="brand-dot"
+            >.</span
+          ></a
+        >
+        <nav class="nav" aria-label="Главная навигация">
+          <a href="/">Знакомство</a><a href="/resume.html" aria-current="page">Резюме</a>
+        </nav>
+        <button class="theme-button" id="theme" type="button" aria-label="Включить светлую тему">
+          ◐ <span>Светлая тема</span>
+        </button>
+      </header>
+      <main class="resume-main">
+        <p class="eyebrow">ОПЫТ / НАВЫКИ / КОНТАКТЫ</p>
+        <div class="resume-heading">
+          <div>
+            <h1>Резюме.</h1>
+            <p class="description">Илья Трушкин · Junior DevOps Engineer</p>
+          </div>
+          <a class="primary-button" href="/assets/resume.pdf" download="Trushkin_Junior_DevOps.pdf"
+            >Скачать PDF</a
+          >
+        </div>
+        <p class="pdf-fallback">
+          <a href="/assets/resume.pdf" target="_blank" rel="noopener noreferrer"
+            >Открыть PDF в новой вкладке</a
+          >
+        </p>
+        <object
+          class="resume-pdf"
+          data="/assets/resume.pdf"
+          type="application/pdf"
+          aria-label="Резюме Ильи Трушкина"
+        >
+          <p>
+            Браузер не поддерживает просмотр PDF. <a href="/assets/resume.pdf">Открыть резюме</a>
+          </p>
+        </object>
+      </main>
+      <footer class="footer">
+        <span>ОДИН КАНДИДАТ. МНОГО ВОЗМОЖНОСТЕЙ.</span><span>Илья Трушкин · 2026</span>
+      </footer>
+      <div class="toast-area" id="toast-area" aria-live="polite"></div>
+    </div>
+  </body>
+</html>

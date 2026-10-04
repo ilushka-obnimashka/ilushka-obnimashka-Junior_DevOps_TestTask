@@ -1,0 +1,37 @@
+#Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Тесты и отчёты
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+test-results/
+coverage.xml
+
+# JavaScript: установленные зависимости
+node_modules/
+
+# Результаты сборки
+build/
+dist/
+
+# Переменные окружения и секреты
+.env
+.env.*
+!.env.example
+
+# Логи
+*.log
+
+# Локальные настройки редакторов
+.idea/
+.vscode/
+
+# Системные файлы
+.DS_Store
+Thumbs.db

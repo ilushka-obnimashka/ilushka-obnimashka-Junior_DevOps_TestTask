@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Илья Трушкин — Junior DevOps. Давайте совпадём по работе." />
+    <title>jobmatch · Илья Трушкин</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/style.css" />
+    <script src="/assets/app.js" defer></script>
+  </head>
+  <body>
+    <div id="jobmatch" data-theme="dark">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="jobmatch — главная"
+          ><span class="brand-icon" aria-hidden="true">♥</span>jobmatch<span class="brand-dot"
+            >.</span
+          ></a
+        >
+        <nav class="nav" aria-label="Главная навигация">
+          <a href="/" aria-current="page">Знакомство</a><a href="/resume.html">Резюме</a>
+        </nav>
+        <button class="theme-button" id="theme" type="button" aria-label="Включить светлую тему">
+          ◐ <span>Светлая тема</span>
+        </button>
+      </header>
+      <main class="discovery">
+        <section class="intro" aria-labelledby="headline">
+          <p class="eyebrow"><span class="small-line"></span> JUNIOR DEVOPS / ТЕСТОВОЕ ЗАДАНИЕ</p>
+          <h1 id="headline">Ищу ту самую.<br /><span>Команду.</span></h1>
+          <p class="lead">
+            У нас уже есть кое-что общее.<br />Вы ищете DevOps-инженера. Я — интересную работу.
+          </p>
+          <div class="intro-note">
+            <span class="note-icon" aria-hidden="true">↗</span>
+            <p>
+              Свайп вправо — и познакомимся поближе.<br /><span
+                >Влево? Давай не будем торопиться.</span
+              >
+            </p>
+          </div>
+          <div class="social-links" aria-label="Социальные сети">
+            <a href="https://t.me/ilya_trushkin" target="_blank" rel="noopener noreferrer"
+              >Telegram</a
+            ><a
+              href="https://github.com/ilushka-obnimashka"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            ><a href="https://vk.ru/ilya_trushkin" target="_blank" rel="noopener noreferrer">VK</a>
+          </div>
+          <p class="micro-copy">Без неловкого «привет, как дела?»</p>
+          <button class="notification-button" id="notification" type="button">
+            Подкат от DevOps ✦
+          </button>
+        </section>
+        <section class="deck" aria-label="Карточка кандидата">
+          <div class="card-stack">
+            <article class="candidate" id="candidate" aria-label="Илья, 21 год, Junior DevOps">
+              <img
+                class="portrait"
+                src="/assets/portrait.jpg"
+                alt="Илья на фоне неба"
+                width="1824"
+                height="1368"
+                draggable="false"
+              />
+              <div class="photo-shade" aria-hidden="true"></div>
+              <div class="photo-top">
+                <span class="profile-label">ОТКРЫТ К ПРЕДЛОЖЕНИЯМ</span
+                ><span class="photo-number">01 / 01</span>
+              </div>
+              <div class="swipe-stamp" aria-hidden="true">В КОМАНДУ</div>
+              <div class="candidate-caption">
+                <div class="name-line">
+                  <h2>Илья<span>, 21</span></h2>
+                  <span class="verified" aria-label="Автор тестового задания">✦</span>
+                </div>
+                <p class="position">Junior DevOps · Python</p>
+                <p class="location">Новосибирск · НГУ</p>
+                <div class="tags">
+                  <span>Linux</span><span>CI/CD</span><span>Python</span><span>Docker</span>
+                </div>
+              </div>
+              <div class="about-panel" id="about-panel" hidden>
+                <p class="eyebrow">ЧУТЬ БОЛЬШЕ ОБО МНЕ</p>
+                <h2>Привет, я Илья.</h2>
+                <p>
+                  Учусь на IV курсе ИИР НГУ. Разрабатывал Python-бэкенд и AI-сервисы в стартапах.
+                </p>
+                <p>
+                  Занимался Docker, CI/CD, тестированием и Linux-серверами. Хочу дальше развиваться
+                  в DevOps.
+                </p>
+                <p class="about-joke">Ищу серьёзные отношения<br />с вашей инфраструктурой.</p>
+                <a href="/resume.html" class="text-link">Посмотреть резюме</a>
+              </div>
+            </article>
+            <section class="match-panel" id="match-panel" aria-labelledby="match-title" hidden>
+              <span class="match-heart" aria-hidden="true">♥</span>
+              <p class="eyebrow">СОВПАЛИ ПО ИНТЕРЕСАМ</p>
+              <h2 id="match-title">Это мэтч!</h2>
+              <p id="match-message"></p>
+              <a
+                class="primary-button"
+                href="https://t.me/ilya_trushkin"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Познакомиться в Telegram</a
+              ><button class="text-button" id="again" type="button">
+                Посмотреть карточку ещё раз
+              </button>
+            </section>
+          </div>
+          <div class="card-actions" id="card-actions">
+            <div>
+              <button
+                class="round-button rewind"
+                id="rewind"
+                type="button"
+                aria-label="Попробовать свайп влево"
+              >
+                ↶</button
+              ><span>Передумать</span>
+            </div>
+            <div>
+              <button
+                class="round-button accept"
+                id="accept"
+                type="button"
+                aria-label="Принять Илью в команду"
+              >
+                <span aria-hidden="true">♥</span></button
+              ><span>В команду</span>
+            </div>
+            <div>
+              <button
+                class="round-button info"
+                id="info"
+                type="button"
+                aria-label="Обо мне"
+                aria-expanded="false"
+                aria-controls="about-panel"
+              >
+                i</button
+              ><span>Обо мне</span>
+            </div>
+          </div>
+          <p class="deck-hint" id="deck-hint">Свайпни вправо или нажми на сердце</p>
+        </section>
+      </main>
+      <footer class="footer">
+        <span>ОДИН КАНДИДАТ. МНОГО ВОЗМОЖНОСТЕЙ.</span><span>Илья Трушкин · 2026</span>
+      </footer>
+      <div class="toast-area" id="toast-area" aria-live="polite"></div>
+    </div>
+  </body>
+</html>

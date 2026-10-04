@@ -1,0 +1,21 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      PORT: "10000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:10000/health/', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:8080:10000"
+    environment:
+      PORT: "10000"
+      BACKEND_ORIGIN: http://backend:10000
+      DNS_RESOLVER: 127.0.0.11
+    depends_on:
+      backend:
+        condition: service_healthy

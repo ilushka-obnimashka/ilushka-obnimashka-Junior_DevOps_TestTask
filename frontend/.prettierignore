@@ -1,0 +1,4 @@
+node_modules/
+package-lock.json
+public/assets/resume.pdf
+public/assets/portrait.jpg
