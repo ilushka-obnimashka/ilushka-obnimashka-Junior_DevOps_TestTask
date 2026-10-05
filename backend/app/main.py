@@ -15,30 +15,50 @@ app = FastAPI(
 )
 
 
-@app.get("/health/", response_model=HealthResponse, tags=["Health"])
+@app.get(
+    "/health/",
+    tags=["Состояние сервиса"],
+    summary="Проверка доступности backend",
+    description=(
+        "Возвращает ответ, если приложение FastAPI может обработать запрос. " "ВАЖНО: Не проверяет frontend, nginx."
+    ),
+    response_description="Backend ответил: status равен ok.",
+    response_model=HealthResponse,
+    status_code=200,
+)
 def health(response: Response) -> HealthResponse:
     response.headers["Cache-Control"] = "no-store"
     return HealthResponse()
 
 
-@app.get("/api/match/", response_model=MatchResponse, tags=["Demo"])
+@app.get(
+    "/api/match/",
+    tags=["Знакомство"],
+    summary="Получить демонстрационный мэтч",
+    description=(
+        "Используется при свайпе вправо или нажатии кнопки «В команду». "
+        "Возвращает положительный результат и сообщение для экрана мэтча. "
+    ),
+    response_description="Результат демо-мэтча и текст для пользователя.",
+    response_model=MatchResponse,
+    status_code=200,
+)
 def match(response: Response) -> MatchResponse:
-    """Return a stateless demo match without sending or saving anything."""
     response.headers["Cache-Control"] = "no-store"
     return create_demo_match()
 
 
 @app.get(
     "/api/notification/",
-    response_model=NotificationResponse,
     tags=["Знакомство"],
     summary="Получить случайную шуточную фразу",
     description=(
-        "Вызывается кнопкой «Подкат от DevOps». Выбирает фразу из списка "
-        "на backend и возвращает её для показа уведомления на frontend. "
-        "Фразы могут повторяться. Данные не сохраняются."
+        "Выбирает одну фразу из заданного в приложении списка. "
+        "При повторных запросах фразы могут совпадать. "
+        "Возвращает текст; его показ на странице выполняет frontend."
     ),
-    response_description="Текст уведомления в поле message.",
+    response_description="Случайная фраза в поле message.",
+    response_model=NotificationResponse,
     status_code=200,
 )
 def notification(response: Response) -> NotificationResponse:
