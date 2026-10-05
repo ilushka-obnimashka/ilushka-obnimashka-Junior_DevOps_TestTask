@@ -16,7 +16,7 @@ def test_accept_and_reset(browser, base_url):
 
     assert panel.is_displayed()
     assert browser.find_element(By.ID, "match-message").text == (
-        "Вы ищете DevOps. Я ищу команду. Мы идеально подходим друг-другу"
+        "Вы ищете DevOps. Я ищу команду. Мы идеально подходим друг-другу 💙"
     )
     assert not browser.find_element(By.ID, "candidate").is_displayed()
 
