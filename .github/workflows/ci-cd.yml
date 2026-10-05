@@ -1,0 +1,139 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Do not interrupt a running publication/deploy with a newer push.
+concurrency:
+  group: jobmatch-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    name: Check last commit
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.paths.outputs.backend }}
+      frontend: ${{ steps.paths.outputs.frontend }}
+      tests: ${{ steps.paths.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 2
+      - name: Detect changed folders
+        id: paths
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          backend=false
+          frontend=false
+          tests=false
+
+          if [ "$EVENT" = workflow_dispatch ] || ! git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            backend=true
+            frontend=true
+            tests=true
+          else
+            git diff --name-only -z HEAD~1 HEAD > changed-files.txt
+            while IFS= read -r -d '' file; do
+              case "$file" in
+                backend/*) backend=true; tests=true ;;
+                frontend/*) frontend=true; tests=true ;;
+                tests/e2e/*|compose.yaml) tests=true ;;
+                .github/workflows/*) backend=true; frontend=true; tests=true ;;
+              esac
+            done < changed-files.txt
+          fi
+
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+          echo "tests=$tests" >> "$GITHUB_OUTPUT"
+
+  lint:
+    needs: changes
+    if: needs.changes.outputs.tests == 'true'
+    uses: ./.github/workflows/lint.yml
+
+  tests:
+    needs: changes
+    if: needs.changes.outputs.tests == 'true'
+    uses: ./.github/workflows/tests.yml
+    with:
+      backend_service: ${{ needs.changes.outputs.backend == 'true' }}
+      frontend_service: ${{ needs.changes.outputs.frontend == 'true' }}
+      save_images: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') }}
+
+  ci_result:
+    name: CI result
+    needs: [changes, lint, tests]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      CHANGES_RESULT: ${{ needs.changes.result }}
+      LINT_RESULT: ${{ needs.lint.result }}
+      TESTS_RESULT: ${{ needs.tests.result }}
+      CHECKS_REQUIRED: ${{ needs.changes.outputs.tests }}
+    steps:
+      - name: Check results
+        run: |
+          test "$CHANGES_RESULT" = success
+          if [ "$CHECKS_REQUIRED" = true ]; then
+            test "$LINT_RESULT" = success
+            test "$TESTS_RESULT" = success
+          else
+            test "$LINT_RESULT" = skipped
+            test "$TESTS_RESULT" = skipped
+          fi
+
+  publish:
+    needs: [changes, ci_result]
+    if: >-
+      github.event_name != 'pull_request' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') &&
+      (needs.changes.outputs.backend == 'true' || needs.changes.outputs.frontend == 'true')
+    uses: ./.github/workflows/build-and-push.yml
+    with:
+      backend_service: ${{ needs.changes.outputs.backend == 'true' }}
+      frontend_service: ${{ needs.changes.outputs.frontend == 'true' }}
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
+
+  deploy_backend:
+    needs: [changes, publish]
+    if: vars.RENDER_DEPLOY_ENABLED == 'true' && needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/render.yml
+    with:
+      service: backend
+      service_id: ${{ vars.RENDER_BACKEND_SERVICE_ID }}
+      public_url: ${{ vars.RENDER_BACKEND_URL }}
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+
+  deploy_frontend:
+    needs: [changes, publish, deploy_backend]
+    if: >-
+      always() && !cancelled() &&
+      vars.RENDER_DEPLOY_ENABLED == 'true' &&
+      needs.publish.result == 'success' &&
+      (needs.deploy_backend.result == 'success' || needs.deploy_backend.result == 'skipped') &&
+      needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/render.yml
+    with:
+      service: frontend
+      service_id: ${{ vars.RENDER_FRONTEND_SERVICE_ID }}
+      public_url: ${{ vars.RENDER_FRONTEND_URL }}
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}

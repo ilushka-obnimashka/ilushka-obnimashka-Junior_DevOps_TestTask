@@ -1,0 +1,69 @@
+name: Tests
+on:
+  workflow_call:
+    inputs:
+      backend_service:
+        required: true
+        type: boolean
+      frontend_service:
+        required: true
+        type: boolean
+      save_images:
+        required: true
+        type: boolean
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r backend/requirements-dev.txt -r tests/e2e/requirements.txt
+      - name: Test backend API
+        run: python -m pytest -c backend/pyproject.toml backend/tests -v
+      - name: Start the full application
+        run: docker compose up --build -d --wait --wait-timeout 120
+      - name: Find Chrome on the GitHub runner
+        run: |
+          CHROME_PATH=$(command -v google-chrome || command -v chromium || command -v chromium-browser)
+          echo "CHROME_BINARY=$CHROME_PATH" >> "$GITHUB_ENV"
+      - name: Test browser scenarios
+        env:
+          BASE_URL: http://localhost:8080
+          HEADLESS: '1'
+        run: python -m pytest -c tests/e2e/pytest.ini tests/e2e -v
+      - name: Save the tested backend image
+        if: inputs.save_images && inputs.backend_service
+        run: |
+          docker tag "$(docker compose images -q backend)" jobmatch-backend:tested
+          docker save jobmatch-backend:tested -o /tmp/backend-image.tar
+      - uses: actions/upload-artifact@v4
+        if: inputs.save_images && inputs.backend_service
+        with:
+          name: backend-image
+          path: /tmp/backend-image.tar
+          retention-days: 1
+      - name: Save the tested frontend image
+        if: inputs.save_images && inputs.frontend_service
+        run: |
+          docker tag "$(docker compose images -q frontend)" jobmatch-frontend:tested
+          docker save jobmatch-frontend:tested -o /tmp/frontend-image.tar
+      - uses: actions/upload-artifact@v4
+        if: inputs.save_images && inputs.frontend_service
+        with:
+          name: frontend-image
+          path: /tmp/frontend-image.tar
+          retention-days: 1
+      - name: Show container logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+      - name: Stop containers
+        if: always()
+        run: docker compose down

@@ -1,0 +1,84 @@
+name: Deploy to Render
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      service_id:
+        required: true
+        type: string
+      public_url:
+        required: true
+        type: string
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      RENDER_DEPLOY_HOOK:
+        required: true
+      RENDER_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SERVICE: ${{ inputs.service }}
+      SERVICE_ID: ${{ inputs.service_id }}
+      PUBLIC_URL: ${{ inputs.public_url }}
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+    steps:
+      - name: Validate settings
+        run: |
+          test -n "$SERVICE_ID"
+          test -n "$PUBLIC_URL"
+          test -n "$DEPLOY_HOOK"
+          test -n "$RENDER_API_KEY"
+      - name: Start deployment of the published commit
+        id: deploy
+        run: |
+          IMAGE="docker.io/$DOCKER_USERNAME/jobmatch.$SERVICE:$GITHUB_SHA"
+          CODE=$(curl --silent --show-error --fail --max-time 60 \
+            --get --data-urlencode "imgURL=$IMAGE" \
+            --output /tmp/render-response.json --write-out '%{http_code}' "$DEPLOY_HOOK")
+          if [ "$CODE" != 200 ]; then
+            echo "::error::Render did not return a new deployment ID (HTTP $CODE). Check existing deployments before retrying."
+            exit 1
+          fi
+          DEPLOY_ID=$(jq -er '.deploy.id' /tmp/render-response.json)
+          echo "id=$DEPLOY_ID" >> "$GITHUB_OUTPUT"
+      - name: Wait until this deployment is live
+        env:
+          DEPLOY_ID: ${{ steps.deploy.outputs.id }}
+        run: |
+          for attempt in $(seq 1 90); do
+            STATUS=$(curl --silent --show-error --fail --max-time 30 --retry 2 \
+              --header "Authorization: Bearer $RENDER_API_KEY" \
+              "https://api.render.com/v1/services/$SERVICE_ID/deploys/$DEPLOY_ID" | jq -er '.status')
+            echo "Deploy status: $STATUS"
+            case "$STATUS" in
+              live) exit 0 ;;
+              build_failed|pre_deploy_failed|update_failed|canceled|deactivated)
+                echo "::error::Render deployment failed: $STATUS"
+                exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Timed out waiting for deployment"
+          exit 1
+      - name: Check public health endpoint
+        run: |
+          curl --silent --show-error --fail --max-time 120 --retry 3 --retry-all-errors \
+            "${PUBLIC_URL%/}/health/" | jq -e '.status == "ok"'
+      - name: Check the frontend can reach the backend
+        if: inputs.service == 'frontend'
+        run: |
+          curl --silent --show-error --fail --max-time 120 --retry 3 --retry-all-errors \
+            "${PUBLIC_URL%/}/api/match/" | jq -e '.matched == true and (.message | type == "string")'
