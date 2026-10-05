@@ -41,7 +41,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker load -i /tmp/images/backend-image.tar
-          IMAGE="$DOCKER_USERNAME/jobmatch.backend"
+          IMAGE="$DOCKER_USERNAME/jobmatch-backend"
           docker tag jobmatch-backend:tested "$IMAGE:$GITHUB_SHA"
           docker tag jobmatch-backend:tested "$IMAGE:latest"
           docker push "$IMAGE:$GITHUB_SHA"
@@ -67,7 +67,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker load -i /tmp/images/frontend-image.tar
-          IMAGE="$DOCKER_USERNAME/jobmatch.frontend"
+          IMAGE="$DOCKER_USERNAME/jobmatch-frontend"
           docker tag jobmatch-frontend:tested "$IMAGE:$GITHUB_SHA"
           docker tag jobmatch-frontend:tested "$IMAGE:latest"
           docker push "$IMAGE:$GITHUB_SHA"
