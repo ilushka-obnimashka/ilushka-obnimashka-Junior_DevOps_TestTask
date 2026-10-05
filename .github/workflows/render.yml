@@ -44,7 +44,7 @@ jobs:
       - name: Start deployment of the published commit
         id: deploy
         run: |
-          IMAGE="docker.io/$DOCKER_USERNAME/jobmatch.$SERVICE:$GITHUB_SHA"
+          IMAGE="docker.io/$DOCKER_USERNAME/jobmatch-$SERVICE:$GITHUB_SHA"
           CODE=$(curl --silent --show-error --fail --max-time 60 \
             --get --data-urlencode "imgURL=$IMAGE" \
             --output /tmp/render-response.json --write-out '%{http_code}' "$DEPLOY_HOOK")
