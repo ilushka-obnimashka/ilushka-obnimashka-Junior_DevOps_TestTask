@@ -33,6 +33,7 @@ flowchart LR
     E2 --> F2[Deploy frontend if changed]
 ```
 
+![CI/CD pipeline](ci-cd.png)
 
 На этапе **Lint** проверяется стиль Python-кода с помощью Black, isort и Flake8, а frontend — с помощью Prettier и ESLint. Параллельно выполняются автоматические тесты: backend-тесты на Pytest и интеграционные проверки приложения в Docker Compose, включая Selenium.
 
@@ -64,14 +65,14 @@ Pipeline учитывает структуру монорепозитория и
 
 ```mermaid
 flowchart LR
-    U[Пользователь / UptimeRobot] --> F[Frontend on Render]
+    U[UptimeRobot] --> F[Frontend on Render]
     U --> H[Backend /health/]
     F --> B[Backend API]
 
     R[Render Health Checks] --> F
     R --> H
 
-    F --> N[Email / Slack alerts]
+    F --> N[Email]
     H --> N
 ```
 
@@ -82,3 +83,4 @@ flowchart LR
 Такое сочетание предпочтительнее использования только внутренней проверки Render: health check показывает состояние сервиса внутри инфраструктуры платформы, а внешний монитор дополнительно подтверждает, что приложение действительно доступно пользователю из Интернета.
 
 - Render uptime best practices: https://render.com/docs/uptime-best-practices
+
