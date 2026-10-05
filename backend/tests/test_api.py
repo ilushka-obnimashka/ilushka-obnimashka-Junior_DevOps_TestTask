@@ -14,7 +14,7 @@ def test_match(client):
     assert response.status_code == 200
     data = response.json()
     assert data["matched"] is True
-    assert data["message"] == ("Вы ищете DevOps. Я ищу команду. Мы идеально подходим друг-другу")
+    assert data["message"] == ("Вы ищете DevOps. Я ищу команду. Мы идеально подходим друг-другу 💙")
 
 
 def test_notification(client):
